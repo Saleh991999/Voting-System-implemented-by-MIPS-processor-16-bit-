@@ -1,0 +1,19 @@
+zlcdcmnd: out r0,r0,r0,1
+out r1,r1,r1,0 -------first line of command func. r1 is dataout reg.------
+addi r0,r2,1
+out r2,r2,r2,1
+addi r0,r2,8 ----------- r2=9 delay value for 1us---------
+addi r0,r3,1
+zdelaybeg: beq r0,r2,4
+sub r2,r3,r2,1
+j zdelaybeg
+zdelayend:out r0,r0,r0,1
+lw r0,r2,0
+zdelaybeg100: beq r0,r2,4
+sub r2,r3,r2,1
+j zdelaybeg100
+zdelayend 100: sub r2,r2,r2,1
+add r7,r3,r7,0
+sub r2,r2,r2,1
+add r7,r3,r7,0
+jr r7,r7,r7,0 ------------return func. of lcdcmnd-----------

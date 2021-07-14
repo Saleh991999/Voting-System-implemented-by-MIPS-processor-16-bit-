@@ -1,0 +1,23 @@
+sub r0,r0,r0,1
+sub r1,r1,r1,1
+sub r2,r2,r2,1
+sub r3,r3,r3,1
+sub r4,r4,r4,1
+addi r0,r1,33
+out r1,r1,r1,0
+addi r0,r1,33
+sll r1,r1,r1,6
+sll r1,r1,r1,6
+sll r1,r1,r1,6
+addi r0,r2,1
+sll r2,r2,r2,6
+or r2,r1,r1,3
+out r1,r1,r1,0
+addi r0,r3,9
+addi r0,r4,1
+zdstart: beq r0,r3,4
+beq r0,r3,zdend
+sub r3,r4,r3,1
+j zdstart
+zdend: xor r1,r2,r1,5
+sub r3,r3,r3,1

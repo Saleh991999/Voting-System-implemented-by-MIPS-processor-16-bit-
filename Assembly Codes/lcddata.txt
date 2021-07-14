@@ -1,0 +1,17 @@
+zlcddata: out r0,r0,r0,1
+out r1,r1,r1,0
+sub r2,r2,r2,1
+addi r0,r2,2
+out r2,r2,r2,1
+sub r3,r3,r3,1
+addi r0,r3,1
+add r2,r3,r2,0
+out r2,r2,r2,1
+addi r2,r2,6
+zcalldelay: j zdelay
+add r3,r3,r2,0
+out r2,r2,r2,1
+lw r0,r2,0
+zcalldelay1: j zdelay
+add r7,r3,r7,0
+jar r7,r7,r7,0
