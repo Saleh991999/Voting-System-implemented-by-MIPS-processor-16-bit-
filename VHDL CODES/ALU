@@ -1,0 +1,49 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;--to use shift and logic operations       
+use IEEE.numeric_std.ALL; --to use arithmetic and logic operations 
+
+entity MIPSALU is
+    Port ( ALUA : in  STD_LOGIC_VECTOR (15 downto 0);
+           ALUB : in  STD_LOGIC_VECTOR (15 downto 0);
+			  ALUcontrol: in  STD_LOGIC_VECTOR (2 downto 0);
+           ALUR : inout  STD_LOGIC_VECTOR (15 downto 0);
+			  Zflag : inOUT STD_LOGIC);
+end MIPSALU;
+
+ architecture Behavioral of MIPSALU is
+signal result : STD_LOGIC_VECTOR (15 downto 0); --we need to read alur later so we cant directely use aluR so we create a temporary signal
+signal alu_R:STD_LOGIC_VECTOR (15 downto 0);--ALUR
+signal z_flag:STD_LOGIC;--zflag
+begin
+process(ALUA,ALUB,ALUcontrol) --we used process to avoid concurrent statements cause our alu will do one operation according to alu_control 
+  begin 
+  case ALUcontrol is --alucontrol is the signal that will tell our alu which opertation that should be done it will be sent from the control unit 
+  when  "000"  => 
+  result <= ALUA and ALUB;--anding 
+  when "001" =>   
+  result <= ALUA or ALUB;--oring
+  
+  when "010" =>  
+   result <= ALUA nor ALUB;--noring 
+  when "100" => 
+   result <= ALUA xor ALUB;--xoring remember that thats only the required logic instructions in the describtion so i dont have any objections to make the rest of them 
+  when "011" => 
+   result <=std_logic_vector(unsigned(ALUA)sll 1);--shift left logic but must be applied on an unsigned value
+  when "110" => 
+  result <=  std_logic_vector(unsigned(ALUA) srl 1);--shift right logic but must be applied on an unsigned value 
+  when "111" => 
+   result <= std_logic_vector(unsigned(ALUA)+ unsigned(ALUA));--addittion but we must convert std logic to unsigned as mentioned in vhdl tutorial book
+     when "101" =>
+  result <= std_logic_vector(unsigned(ALUA)-unsigned(ALUB)); --sbtraction but we must convert std logic to unsigned as mentioned in vhdl tutorial book
+  when others => null; --no operation cause case statement should cover all choices. 'others' clause is needed
+  
+  end case ;
+
+end process; -- we wiil do this after process as the following will be concurrent statements          
+ ALUR<= result ; --now we need to read the aluR as i mentioned before "that we we will read it later" 
+zflag<='1' when result="0000000000000000" else '0'; --setting the zero flag according to alur but we cant use alur as we cant rad from out to check so result signal is used 
+alu_R <=ALUR;
+z_flag <=zflag;
+end Behavioral;
+
+ 
