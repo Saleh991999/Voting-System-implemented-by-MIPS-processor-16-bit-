@@ -1,0 +1,44 @@
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+
+use IEEE.NUMERIC_STD.ALL;
+
+
+entity Data_Memory is
+    Port ( Address : in  STD_LOGIC_VECTOR (15 downto 0);
+           WriteData : in  STD_LOGIC_VECTOR (15 downto 0);
+           MemRead : in  STD_LOGIC;
+           MemWrite : in  STD_LOGIC;
+           ReadData : inout  STD_LOGIC_VECTOR (15 downto 0));
+end Data_Memory;
+
+architecture Behavioral of Data_Memory is
+
+  type RAM_16_x_16 is array(0 to 15) of  STD_LOGIC_VECTOR (15 downto 0);
+  
+  signal DM : RAM_16_x_16 :=( (others=> (others => '0') ) );
+    
+
+
+
+signal Dmem_out:STD_LOGIC_VECTOR (15 downto 0);--READdata                                
+                                    
+                                    
+                                
+begin
+
+    process(MemWrite,MemRead)
+     begin
+       if (MemWrite='1') then
+           DM(  (to_integer (unsigned(Address))-1024)/2)<= WriteData ;
+        end if;
+        if (MemRead='1') then
+           ReadData<= DM(  (to_integer (unsigned(Address))-1024)/2);
+        end if;
+		  Dmem_out <=READdata;
+    end process;
+end Behavioral;
+
+
