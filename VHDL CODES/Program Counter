@@ -1,0 +1,37 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;--to use shift and logic operations 
+use IEEE.numeric_std.ALL; --to use arithmetic and logic operations 
+      
+entity pc_unit is
+    Port ( I_clk : in  std_logic;
+           I_nPC : in  std_logic_vector (15 downto 0);
+           I_nPCop : in  std_logic_vector (1 downto 0);
+           O_PC : inout  std_logic_vector (15 downto 0)
+           );
+end pc_unit;
+
+architecture Behavioral of pc_unit is
+  signal current_pc: std_logic_vector( 15 downto 0) := X"0000";
+  signal PC_out:STD_LOGIC_VECTOR (15 downto 0);--o_pc
+begin
+ 
+  process (I_clk)
+  begin
+    if rising_edge(I_clk) then
+      case I_nPCop is
+        when "00" =>   -- NOP, keep PC the same/halt
+        when "01" =>   -- increment
+          current_pc <= std_logic_vector(unsigned(current_pc) + 1);
+        when "10" =>    -- set from external input
+          current_pc <= I_nPC;
+        when "11" =>     -- Reset
+          current_pc <= X"0000";
+        when others =>
+      end case;
+    end if;
+  end process;
+ 
+  O_PC <= current_pc;
+  PC_out<=o_pc;
+ 
+end Behavioral;
