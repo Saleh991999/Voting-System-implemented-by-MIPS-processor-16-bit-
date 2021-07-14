@@ -1,0 +1,17 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.all;
+use IEEE.NUMERIC_STD.all;
+entity adr is
+port ( add1, add2 : in UNSIGNED(15 downto 0) ;
+Sum : inout UNSIGNED(15 downto 0) ) ;
+end adr;
+architecture addero of adr is
+begin
+Sum <= add1 + add2; 
+end addero; 
+
+
+
+
+
+
