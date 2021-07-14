@@ -1,0 +1,17 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+entity ALUCONTROLLER is
+    Port ( Funct : in  STD_LOGIC_VECTOR (2 downto 0);
+           ALUOPI : in  STD_LOGIC_VECTOR (1 downto 0);
+           ALUOPERATION : inout  STD_LOGIC_VECTOR (2 downto 0));
+end ALUCONTROLLER;
+
+architecture Behavioral of ALUCONTROLLER is
+signal alu_operation:STD_LOGIC_VECTOR (2 downto 0);--ALUOPERATION
+begin
+ALUOPERATION(0)<=(not(ALUOPI(0))and ALUOPI(1)) or (Funct(0)and Funct(2)) or ((not(ALUOPI(1)))and (not(Funct(0)))and(not(Funct(1))));
+ALUOPERATION(1)<=(Funct(0)and Funct(1)) or (not(ALUOPI(0))and ALUOPI(1))or ((not(ALUOPI(0)))and (not(Funct(1)))and(not(Funct(2))));
+ALUOPERATION(2)<=((not(ALUOPI(0))) and ALUOPI(1))or(not(Funct(0)) and Funct(2))or(not(ALUOPI(1))and (not(Funct(0))) and(not(Funct(1)))) or(Funct(0) and Funct(1)and(not(Funct(2))));
+alu_operation<=ALUOPERATION;
+end Behavioral;
+
