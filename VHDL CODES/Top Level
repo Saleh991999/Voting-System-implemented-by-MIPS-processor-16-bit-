@@ -1,0 +1,171 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.all;
+entity Final is
+    Port ( in_put : in  STD_LOGIC_VECTOR (15 downto 0);
+           CLK : in  STD_LOGIC;
+           RESET : in  STD_LOGIC;
+           Out_put : out  STD_LOGIC_VECTOR (15 downto 0));
+end Final;
+
+architecture Behavioral of Final is
+ component MIPSALU is
+    Port ( ALUA : in  STD_LOGIC_VECTOR (15 downto 0);
+           ALUB : in  STD_LOGIC_VECTOR (15 downto 0);
+			  ALUcontrol: in  STD_LOGIC_VECTOR (2 downto 0);
+           ALUR : inout  STD_LOGIC_VECTOR (15 downto 0);
+			  Zflag : inOUT STD_LOGIC);
+end component;
+component register_file is
+    Port ( reg1 : in  STD_LOGIC_VECTOR (2 downto 0);
+           reg2 : in  STD_LOGIC_VECTOR (2 downto 0);
+			  wreg : in  STD_LOGIC_VECTOR (2 downto 0);
+			  ra : in  STD_LOGIC;
+			  rb : in  STD_LOGIC;
+			  w : in  STD_LOGIC;
+			  in_data : in  STD_LOGIC_VECTOR (15 downto 0);
+			  clk : in  STD_LOGIC;
+			  clr: in  STD_LOGIC;
+			  RD1 : inout  STD_LOGIC_VECTOR (15 downto 0);
+           RD2 : inout  STD_LOGIC_VECTOR (15 downto 0));
+end component;
+ component Data_Memory is
+    Port ( Address : in  STD_LOGIC_VECTOR (15 downto 0);
+           WriteData : in  STD_LOGIC_VECTOR (15 downto 0);
+           MemRead : in  STD_LOGIC;
+           MemWrite : in  STD_LOGIC;
+           ReadData : inout  STD_LOGIC_VECTOR (15 downto 0));
+end component;
+
+component instruction_memory is
+    Port ( ReadAddress : in  STD_LOGIC_VECTOR (15 downto 0);
+           instruction : inout  STD_LOGIC_VECTOR (15 downto 0));
+end component ;
+component ALUCONTROLLER is
+    Port ( Funct : in  STD_LOGIC_VECTOR (2 downto 0);
+           ALUOPI : in  STD_LOGIC_VECTOR (1 downto 0);
+           ALUOPERATION : inout  STD_LOGIC_VECTOR (2 downto 0));
+end component;
+ component Adr is 
+ port ( add1 : in unsigned (15 downto 0) ;
+        add2 : in unsigned (15 downto 0) ;
+        Sum : inout UNSIGNED(15 downto 0) ) ;
+end component;
+
+
+
+ component signextender is
+    Port ( sign_in : in  STD_LOGIC_VECTOR (5 downto 0);
+           sign_out : inout  STD_LOGIC_VECTOR (15 downto 0)
+			  );
+			  end component;
+
+	component pc_unit is
+    Port ( I_clk : in  std_logic;
+           I_nPC : in  std_logic_vector (15 downto 0);
+           I_nPCop : in  std_logic_vector (1 downto 0);
+           O_PC : inout  std_logic_vector (15 downto 0)
+           );
+end component;
+ component mux is
+Port ( a : in  STD_LOGIC_VECTOR (15 downto 0);
+b : in  STD_LOGIC_VECTOR (15 downto 0);
+sel : in std_logic;
+mux_out : inout  STD_LOGIC_VECTOR (15 downto 0));
+end component;
+component mux3 is
+Port ( aa : in  STD_LOGIC_VECTOR (15 downto 0);
+bb : in  STD_LOGIC_VECTOR (15 downto 0);
+cc : in  STD_LOGIC_VECTOR (15 downto 0);
+dd : in  STD_LOGIC_VECTOR (15 downto 0);
+ss : in STD_LOGIC_VECTOR (1 downto 0);
+oo : inout  STD_LOGIC_VECTOR (15 downto 0));
+end component;
+component ControlUnit is
+    Port ( OPCode : in  STD_LOGIC_VECTOR (3 downto 0);
+           AluOP : inout  STD_LOGIC_VECTOR (2 downto 0);--input for alu controller based on opcode for control unit
+           RegfileW : inout  STD_LOGIC;--write signal for regfile
+           RegfileR1 : inout  STD_LOGIC;--readsignal for RD1(regfile)
+           RegfileR2 : inout  STD_LOGIC;--readsignal for RD2(regfile)
+			  MemR : inout  STD_LOGIC;--read signal for data memory
+           MemW : inout  STD_LOGIC;--write signal for data memory
+			  branch:inout  STD_LOGIC;
+			  PCOP: inout  STD_LOGIC_VECTOR (1 downto 0);--pc operation(00 nop 01 inc 10 set from input 11 reset)
+           S1 :   inout  STD_LOGIC;--alub(0 when RD2 and 1 when signextend)
+           S2 :   inout  STD_LOGIC_VECTOR (1 downto 0);--wreg(01 when address of rd and 00 when address of rt and 10when "111" )
+           S3 :   inout  STD_LOGIC_VECTOR (1 downto 0);--Rdata(00 when ALUR and 01 when memout and 10 when (pc+1)  )
+			  S4 :   inout  STD_LOGIC_VECTOR (1 downto 0));--pc(00 when RD1 and 01 when sum and 10 when pc(target))
+			  end component;
+signal alu_R:STD_LOGIC_VECTOR (15 downto 0);--ALUR
+signal z_flag:STD_LOGIC;--zflag
+signal regA:STD_LOGIC_VECTOR (15 downto 0);--RD1
+signal regB:STD_LOGIC_VECTOR (15 downto 0);--RD2
+signal Dmem_out:STD_LOGIC_VECTOR (15 downto 0);--READdata
+signal Imem_out:STD_LOGIC_VECTOR (15 downto 0);--instruction
+signal alu_operation:STD_LOGIC_VECTOR (2 downto 0);--ALUOPERATION
+signal adder_sum:STD_LOGIC_VECTOR (15 downto 0);--sum
+signal extend_out:STD_LOGIC_VECTOR (15 downto 0);--sign_out
+signal PC_out:STD_LOGIC_VECTOR (15 downto 0);--o_pc
+signal muxs1_out:STD_LOGIC_VECTOR (15 downto 0);
+signal muxs2_out:STD_LOGIC_VECTOR (2 downto 0);
+signal muxs3_out:STD_LOGIC_VECTOR (15 downto 0);
+signal muxs4_out:STD_LOGIC_VECTOR (15 downto 0);
+signal j_al:STD_LOGIC_VECTOR (2 downto 0):="111";--for jal
+signal W_reg:STD_LOGIC;--RegfileW
+signal R1_reg:STD_LOGIC;--RegfileR1
+signal R2_reg:STD_LOGIC;--RegfileR2
+signal mem_read:STD_LOGIC;--memr
+signal mem_write:STD_LOGIC;--memw
+signal B_eq:STD_LOGIC;--branch
+signal pc_op:STD_LOGIC_VECTOR (1 downto 0);--pcop
+signal op_code:STD_LOGIC_VECTOR (3 downto 0);--opcode
+signal alu_op:STD_LOGIC_VECTOR (2 downto 0);--aluop
+signal s_2:STD_LOGIC_VECTOR (1 downto 0);--s2
+signal s_3:STD_LOGIC_VECTOR (1 downto 0);--s3
+signal s_4:STD_LOGIC_VECTOR (1 downto 0);--s4
+signal s_1:STD_LOGIC;--s1
+
+
+begin
+alu_R<=ALUR;
+z_flag<=zflag;
+regA<=RD1;
+regB<=RD2;
+Dmem_out<=READdata;
+Imem_out<=instruction;
+alu_operation<=ALUOPERATION;
+adder_sum<=sum;
+extend_out<=sign_out;
+PC_out<=o_pc;
+W_reg<=RegfileW;
+R1_reg<=RegfileR1;
+R2_reg<=RegfileR2;
+mem_read<=memr;
+mem_write<=memw;
+B_eq<=branch;
+pc_op<=pcop;
+op_code<=opcode;
+alu_op<=aluop;
+s_1<=s1;
+s_2<=s2;
+s_3<=s3;
+s_4<=s4;
+
+
+muxs1:mux port map(regB,extend_out,S1,muxs1_out);--s1--ok
+muxs2:mux3 port map(Imem_out(8:6),Imem_out(5:3),j_al,"000",S2,muxs2_out);--s2--ok
+muxs3:mux3 port map(ALUR,ReadData,O_PC,S3,P);--s3--ok
+muxs4:mux3 port map(RD1,sum,pc,S4,mux4);--s4--ok
+AL:MIPSALU port map(regB,muxs1_out,alu_operation,alu_R,z_flag);--ok--ok
+RE:register_file port map(Imem_out(11:9),Imem_out(8:6),muxs2_out,R1_reg,R2_reg,muxs3_out,CLK,clr,regA,regB);--ok(except clk&clr)
+DA:Data_Memory port map(alu_R,regB,mem_read,mem_write,Dmem_out);--ok 
+IT:instruction_memory port map(PC_out,Imem_out);--ok
+AU:ALUCONTROLLER port map(Imem_out(2:0),alu_op,alu_operation);--ok
+AD:Adr port map(PC_out,extend_out,adder_sum);--ok
+SI:signextender port map(Imem_out(5:0),extend_out);--ok
+PR:pc_unit port map(CLK,muxs4_out,pc_op,PC_out);--ok
+cu:controlunit port map(Imem_out(15:12),alu_op,W_reg,R1_reg,R2_reg,mem_read,mem_write,B_eq,pc_op,S_1,S_2,S_3,S_4); 
+
+
+end Behavioral;
+
