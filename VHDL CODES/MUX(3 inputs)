@@ -1,0 +1,25 @@
+library IEEE;
+
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity mux3 is
+Port ( aa : in  STD_LOGIC_VECTOR (15 downto 0);
+bb : in  STD_LOGIC_VECTOR (15 downto 0);
+cc : in  STD_LOGIC_VECTOR (15 downto 0);
+dd : in  STD_LOGIC_VECTOR (15 downto 0);
+ss : in STD_LOGIC_VECTOR (1 downto 0);
+oo : out  STD_LOGIC_VECTOR (15 downto 0));
+end mux3;
+
+architecture Behavioral of mux3 is
+Begin
+oo <= aa when (ss="00") else
+      bb when (ss="01") else
+		cc when (ss="10") else
+		dd when (ss="11") else
+	    x"0000";
+			 
+
+
+
+end Behavioral;
