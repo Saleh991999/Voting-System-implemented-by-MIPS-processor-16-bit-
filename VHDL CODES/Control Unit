@@ -1,0 +1,66 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+--use IEEE.NUMERIC_STD.ALL;
+entity ControlUnit is
+    Port ( OPCode : in  STD_LOGIC_VECTOR (3 downto 0);
+           AluOP : inout  STD_LOGIC_VECTOR (2 downto 0);--input for alu controller based on opcode for control unit
+           RegfileW : inout  STD_LOGIC;--write signal for regfile
+           RegfileR1 : inout  STD_LOGIC;--readsignal for RD1(regfile)
+           RegfileR2 : inout  STD_LOGIC;--readsignal for RD2(regfile)
+			  MemR : inout  STD_LOGIC;--read signal for data memory
+           MemW : inout  STD_LOGIC;--write signal for data memory
+			  PCOP: inout  STD_LOGIC_VECTOR (1 downto 0);--pc operation(00 nop 01 inc 10 set from input 11 reset)
+           S1 :   inout  STD_LOGIC;--alub(0 when RD2 and 1 when signextend)
+           S2 :   inout  STD_LOGIC_VECTOR (1 downto 0);--wreg(01 when address of rd and 00 when address of rt and 10when "111" )
+           S3 :   inout  STD_LOGIC_VECTOR (1 downto 0);--Rdata(00 when ALUR and 01 when memout and 10 when (pc+1)  )
+			  S4 :   inout  STD_LOGIC_VECTOR (1 downto 0));--pc(00 when RD1 and 01 when sum and 10 when pc(target))
+			  end ControlUnit;
+
+architecture Behavioral of ControlUnit is
+signal W_reg:STD_LOGIC;--RegfileW
+signal R1_reg:STD_LOGIC;--RegfileR1
+signal R2_reg:STD_LOGIC;--RegfileR2
+signal mem_read:STD_LOGIC;--memr
+signal mem_write:STD_LOGIC;--memw
+signal B_eq:STD_LOGIC;--branch
+signal pc_op:STD_LOGIC_VECTOR (1 downto 0);--pcop
+signal op_code:STD_LOGIC_VECTOR (3 downto 0);--opcode
+signal alu_op:STD_LOGIC_VECTOR (2 downto 0);--aluop
+signal s_2:STD_LOGIC_VECTOR (1 downto 0);--s2
+signal s_3:STD_LOGIC_VECTOR (1 downto 0);--s3
+signal s_4:STD_LOGIC_VECTOR (1 downto 0);--s4
+signal s_1:STD_LOGIC;--s1
+begin
+     process(OPCode)
+	  begin
+	  case OPCode is
+	  when "0000"=> --opcode for R-type instruction(add,sub,and,or,nor,xor,sll,sRl)
+	   AluOP <= "000";
+      RegfileW <= '1';
+      RegfileR1 <= '1';
+      RegfileR2 <= '1';
+		MemW <='0';
+		MemR<='0';
+		PCOP<="01";
+      S1 <='0';
+      S2 <="01";
+      S3 <="00";
+		S4 <="11";
+	   end case;
+	  end process;
+W_reg<=RegfileW;
+R1_reg<=RegfileR1;
+R2_reg<=RegfileR2;
+mem_read<=memr;
+mem_write<=memw;
+--B_eq<=branch;
+pc_op<=pcop;
+op_code<=opcode;
+alu_op<=aluop;
+s_1<=s1;
+s_2<=s2;
+s_3<=s3;
+s_4<=s4;
+
+end Behavioral;
+
