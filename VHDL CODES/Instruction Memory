@@ -1,0 +1,46 @@
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+use IEEE.NUMERIC_STD.ALL;
+
+
+
+entity instruction_memory is
+    Port ( ReadAddress : in  STD_LOGIC_VECTOR (15 downto 0);
+           instruction : inout  STD_LOGIC_VECTOR (15 downto 0));
+end instruction_memory;
+
+architecture Behavioral of instruction_memory is
+signal Imem_out:STD_LOGIC_VECTOR (15 downto 0);--instruction
+
+
+  type RAM_16_x_16 is array (0 to 15) of std_logic_vector(15 downto 0);
+  
+  signal IM : RAM_16_x_16 :=  ( 
+                                "1000000110000000", --instruction at 1st address 0x0400
+                                "0010110010001011",
+                                "1100010000000011",
+                                "0001000111000000",
+                                "1110110110000001",
+                                "1100000001111011",
+                                "0000000000000000",
+                                "0000000000000000",
+                                "0000000000000000",
+                                "0000000000000000",
+                                "0000000000000000",
+                                "0000000000000000",
+                                "0000000000000000",
+                                "0000000000000000",
+                                "0000000000000000",
+                                "0000000000000000"
+                             );
+  
+begin
+    instruction <= "0000000000000000" when ReadAddress = "0000000000000000" else --when reset code 
+                   IM (  (to_integer (unsigned(ReadAddress))-1024)/2);     --convert 1st address to integer and subs address from it and devide by the step No. of instruction stored on bytes
+						Imem_out<=instruction; 
+                    
+end Behavioral;
+
+
