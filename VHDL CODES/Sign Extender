@@ -1,0 +1,16 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity signextender is
+    Port ( sign_in : in  STD_LOGIC_VECTOR (5 downto 0);
+           sign_out : inout  STD_LOGIC_VECTOR (15 downto 0)
+			  );
+			  end signextender;
+
+architecture Behavioral of signextender is
+signal extend_out:STD_LOGIC_VECTOR (15 downto 0);--sign_out
+begin
+
+sign_out <= "1111111111" & sign_in when sign_in(5)= '1' else  "0000000000" & sign_in;
+extend_out<=sign_out;
+end Behavioral;
