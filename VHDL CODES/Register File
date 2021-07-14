@@ -1,0 +1,60 @@
+----------------------------------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.numeric_std.all;
+
+entity register_file is
+--this code is generic only change n and m to values you need
+
+    Port ( reg1 : in  STD_LOGIC_VECTOR (2 downto 0);
+           reg2 : in  STD_LOGIC_VECTOR (2 downto 0);
+			  wreg : in  STD_LOGIC_VECTOR (2 downto 0);
+			  ra : in  STD_LOGIC;
+			  rb : in  STD_LOGIC;
+			  w : in  STD_LOGIC;
+			  in_data : in  STD_LOGIC_VECTOR (15 downto 0);
+			  clk : in  STD_LOGIC;
+			  clr: in  STD_LOGIC;
+			  RD1 : inout  STD_LOGIC_VECTOR (15 downto 0);
+           RD2 : inout  STD_LOGIC_VECTOR (15 downto 0));
+end register_file;
+
+architecture Behavioral of register_file is
+component register1 is
+
+    Port ( input : in  STD_LOGIC_VECTOR (15 downto 0);
+           output1 : out  STD_LOGIC_VECTOR (15 downto 0);
+           output2 : out  STD_LOGIC_VECTOR (15 downto 0);
+           clr_reg : in  STD_LOGIC;
+           clk_reg : in  STD_LOGIC;
+           e0 : in  STD_LOGIC;
+           e1 : in  STD_LOGIC;
+           load : in  STD_LOGIC);
+end component;
+component generic_decoder is
+ --here type any number you need
+    Port ( address : in  STD_LOGIC_VECTOR (2 downto 0);
+           output : out  STD_LOGIC_VECTOR (7 downto 0); --mean 2 power k-1 to get number of registers 
+           enable : in  STD_LOGIC);
+end component;
+
+signal load_sig :std_logic_vector (7 downto 0);
+signal e0_sig :std_logic_vector (7 downto 0);
+signal e1_sig :std_logic_vector (7 downto 0);
+type signals is array (0 to 7) of std_logic_vector(15 downto 0);
+signal outA_signals,outB_signals : signals;
+signal regA:STD_LOGIC_VECTOR (15 downto 0);--RD1
+signal regB:STD_LOGIC_VECTOR (15 downto 0);--RD2
+begin
+x1: generic_decoder  port map (wreg,load_sig,w);
+x2: generic_decoder  port map (reg1,e0_sig,ra);
+x3: generic_decoder  port map (reg2,e1_sig,rb);
+
+c: for i in 0 to 7 generate
+      x: register1  port map (in_data,outA_signals(i),outB_signals(i),clr,clk,e0_sig(i),e1_sig(i),load_sig(i));
+	end generate;
+RD1 <= outA_signals(to_integer(unsigned(reg1)));
+RD2 <= outB_signals(to_integer(unsigned(reg2)));
+regA <=RD1;
+regB <=RD2;
+end Behavioral;
