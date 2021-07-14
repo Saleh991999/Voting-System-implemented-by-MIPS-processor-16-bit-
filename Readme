@@ -1,4 +1,4 @@
 This system is implemented based on MIPS Processor 16 bit that will be attached its description in detail in pdf file. 
 The codes that implemented the proessor are written using VHDL on Xillinx ISE Tool.
 you can use FPGA sparton 6 to implement processor hardware.
-
+The assembly code for voting system will be attached.
