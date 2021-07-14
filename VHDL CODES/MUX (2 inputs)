@@ -1,0 +1,21 @@
+library IEEE;
+
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity mux is
+Port ( a : in  STD_LOGIC_VECTOR (15 downto 0);
+b : in  STD_LOGIC_VECTOR (15 downto 0);
+sel : in std_logic;
+mux_out : out  STD_LOGIC_VECTOR (15 downto 0));
+end mux;
+
+architecture Behavioral of mux is
+Begin
+mux_out <= a when (sel='0') else
+          b when (sel='1') else
+			 x"0000";
+			 
+
+
+
+end Behavioral;
